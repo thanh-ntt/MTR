@@ -106,7 +106,7 @@ class TransformerEncoderLayer(nn.Module):
                 query_batch_cnt=None, 
                 key_batch_cnt=None, 
                 index_pair_batch=None):
-        if self.normalize_before:
+        if self.normalize_before: # Always FALSE
             return self.forward_pre(src, src_mask, src_key_padding_mask, pos, 
                                     index_pair=index_pair, query_batch_cnt=query_batch_cnt, 
                                     key_batch_cnt=key_batch_cnt, index_pair_batch=index_pair_batch)

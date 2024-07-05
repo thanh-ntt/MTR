@@ -72,6 +72,11 @@ class TransformerDecoderLayer(nn.Module):
     def with_pos_embed(self, tensor, pos: Optional[Tensor]):
         return tensor if pos is None else tensor + pos
 
+    # WARNING: pos parameter (for cross-attention)
+    # pos is invoked with both K & V in mind (pos=kv_pos_embed_stack), but in this fn, pos is used with only K
+    # for V, it's a projection from memory (agent/map features) - v = self.ca_v_proj(memory)
+    # WARNING: k_content is different for self-attention (from query content feature)
+    # and cross-attention (from agent/map feature)
     def forward(self, tgt, memory,
                 tgt_mask: Optional[Tensor] = None,
                 memory_mask: Optional[Tensor] = None,
@@ -89,8 +94,8 @@ class TransformerDecoderLayer(nn.Module):
         """
 
         Args:
-            tgt (num_query, B, C):
-            memory (M1 + M2 + ..., C):
+            tgt (num_query, B, C): tgt=query_content = target = query content feature = input of each decoder layer
+            memory (M1 + M2 + ..., C): agent features & map features from Encoder
             pos (M1 + M2 + ..., C):
             query_pos (num_query, B, C):
             query_sine_embed (num_query, B, C):
@@ -113,6 +118,7 @@ class TransformerDecoderLayer(nn.Module):
             num_queries, bs, n_model = q_content.shape
             hw, _, _ = k_content.shape
 
+            # (+) operation below K & Q in the Multi-Head Self-Attention (below) block in decoder
             q = q_content + q_pos
             k = k_content + k_pos
 
@@ -154,14 +160,16 @@ class TransformerDecoderLayer(nn.Module):
             k_pos = pos.new_zeros(memory.shape[0], k_pos_valid.shape[-1])
             k_pos[memory_valid_mask] = k_pos_valid
         else:
+            # memory ~ K,V from encoder block
             k_content = self.ca_kcontent_proj(memory)
             v = self.ca_v_proj(memory)
             k_pos = self.ca_kpos_proj(pos)
 
         # For the first decoder layer, we concatenate the positional embedding predicted from
         # the object query (the positional embedding) into the original query (key) in DETR.
-        if is_first or self.keep_query_pos:
+        if is_first or self.keep_query_pos: # keep_query_pos is always FALSE
             q_pos = self.ca_qpos_proj(query_pos)
+            # for 1st layer, tgt is initialized to zeros -> q_content is projection of zeros -> need q_pos
             q = q_content + q_pos
             k = k_content + k_pos
         else:
@@ -176,6 +184,9 @@ class TransformerDecoderLayer(nn.Module):
 
             q = q.view(num_q_all, self.nhead, n_model//self.nhead)
             query_sine_embed = query_sine_embed.view(num_q_all, self.nhead, n_model//self.nhead)
+            # concatenate
+            #  1. q_content - projection from query content feature
+            #  2. query_sine_embed - projection (MLP(PE(dynamic searching query)) # dynamic_query_center
             q = torch.cat([q, query_sine_embed], dim=-1).view(num_q_all, n_model * 2)
 
             k = k.view(num_k_all, self.nhead, n_model//self.nhead)

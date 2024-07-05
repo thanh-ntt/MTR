@@ -128,6 +128,8 @@ class MTREncoder(nn.Module):
         # local attn
         output = x_stack
         for k in range(len(self.self_attn_layers)):
+            # forward call invoke of TransformerEncoderLayer (subsequently invoke MultiheadAttentionLocal's forward - forward_post)
+            # mtr/models/utils/transformer/transformer_encoder_layer.py:100
             output = self.self_attn_layers[k](
                 src=output,
                 pos=pos_embedding,
@@ -171,6 +173,7 @@ class MTREncoder(nn.Module):
         obj_valid_mask = (obj_trajs_mask.sum(dim=-1) > 0)  # (num_center_objects, num_objects)
         map_valid_mask = (map_polylines_mask.sum(dim=-1) > 0)  # (num_center_objects, num_polylines)
 
+        # global_token_feature = G in eq2
         global_token_feature = torch.cat((obj_polylines_feature, map_polylines_feature), dim=1) 
         global_token_mask = torch.cat((obj_valid_mask, map_valid_mask), dim=1) 
         global_token_pos = torch.cat((obj_trajs_last_pos, map_polylines_center), dim=1) 
