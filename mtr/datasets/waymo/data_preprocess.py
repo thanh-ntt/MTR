@@ -43,7 +43,7 @@ def get_polyline_dir(polyline):
 
 
 def decode_map_features_from_proto(map_features):
-    map_infos = {
+    map_infos = { # correspond to src/waymo_open_dataset/protos/map.proto:71 in waymo-open-dataset
         'lane': [],
         'road_line': [],
         'road_edge': [],
@@ -228,7 +228,7 @@ def get_infos_from_protos(data_path, output_path=None, num_workers=8):
     return all_infos
 
 
-def create_infos_from_protos(raw_data_path, output_path, num_workers=16):
+def create_infos_from_protos(raw_data_path, output_path, num_workers=4):
     train_infos = get_infos_from_protos(
         data_path=os.path.join(raw_data_path, 'training'),
         output_path=os.path.join(output_path, 'processed_scenarios_training'),
