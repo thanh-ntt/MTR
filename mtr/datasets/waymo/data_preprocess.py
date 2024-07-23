@@ -207,7 +207,7 @@ def process_waymo_data_with_scenario_proto(data_file, output_path=None):
     return ret_infos
 
 
-def get_infos_from_protos(data_path, output_path=None, num_workers=2):
+def get_infos_from_protos(data_path, output_path=None, num_workers=8):
     from functools import partial
     if output_path is not None:
         os.makedirs(output_path, exist_ok=True)
@@ -227,7 +227,7 @@ def get_infos_from_protos(data_path, output_path=None, num_workers=2):
     return all_infos
 
 
-def create_infos_from_protos(raw_data_path, output_path, num_workers=16):
+def create_infos_from_protos(raw_data_path, output_path, num_workers=2):
     train_infos = get_infos_from_protos(
         data_path=os.path.join(raw_data_path, 'training'),
         output_path=os.path.join(output_path, 'processed_scenarios_training'),
