@@ -228,7 +228,7 @@ def get_infos_from_protos(data_path, output_path=None, num_workers=8):
     return all_infos
 
 
-def create_infos_from_protos(raw_data_path, output_path, num_workers=2):
+def create_infos_from_protos(raw_data_path, output_path, num_workers=16):
     train_infos = get_infos_from_protos(
         data_path=os.path.join(raw_data_path, 'training'),
         output_path=os.path.join(output_path, 'processed_scenarios_training'),
@@ -251,6 +251,13 @@ def create_infos_from_protos(raw_data_path, output_path, num_workers=2):
     
 
 if __name__ == '__main__':
+    gpus = tf.config.experimental.list_physical_devices('GPU')
+    if gpus:
+        try:
+            for gpu in gpus:
+                tf.config.experimental.set_memory_growth(gpu, True)
+        except RuntimeError as e:
+            print(e)
     create_infos_from_protos(
         raw_data_path=sys.argv[1],
         output_path=sys.argv[2]
