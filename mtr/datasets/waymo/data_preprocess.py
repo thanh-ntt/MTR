@@ -13,14 +13,6 @@ import glob
 from tqdm import tqdm
 from waymo_open_dataset.protos import scenario_pb2
 from waymo_types import object_type, lane_type, road_line_type, road_edge_type, signal_state, polyline_type
-
-gpus = tf.config.experimental.list_physical_devices('GPU')
-if gpus:
-    try:
-        for gpu in gpus:
-            tf.config.experimental.set_memory_growth(gpu, True)
-    except RuntimeError as e:
-        print(e)
     
 def decode_tracks_from_proto(tracks):
     track_infos = {
@@ -215,7 +207,7 @@ def process_waymo_data_with_scenario_proto(data_file, output_path=None):
     return ret_infos
 
 
-def get_infos_from_protos(data_path, output_path=None, num_workers=8):
+def get_infos_from_protos(data_path, output_path=None, num_workers=2):
     from functools import partial
     if output_path is not None:
         os.makedirs(output_path, exist_ok=True)
