@@ -15,7 +15,7 @@ do
 done
 echo $PORT
 
-python -m torch.distributed.launch --nproc_per_node=${NGPUS} --rdzv_endpoint=localhost:${PORT} train.py --launcher pytorch ${PY_ARGS}
+python -m torch.distributed.launch --nproc_per_node=${NGPUS} --master_addr=127.0.0.1 --master_port=${PORT} train.py --launcher pytorch ${PY_ARGS}
 
 # torchrun --nproc_per_node=${NGPUS} --rdzv_endpoint=localhost:${PORT} train.py --launcher pytorch ${PY_ARGS}
 
