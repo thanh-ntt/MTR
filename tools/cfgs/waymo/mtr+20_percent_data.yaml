@@ -2,15 +2,15 @@ DATA_CONFIG:
     DATASET: WaymoDataset
     OBJECT_TYPE: &object_type ['TYPE_VEHICLE', 'TYPE_PEDESTRIAN', 'TYPE_CYCLIST']
     
-    DATA_ROOT: 'data/waymo'
+    DATA_ROOT: '/tmp/waymo'
     SPLIT_DIR: {
-        'train': '/tmp/waymo/processed_scenarios_training',
-        'test': '/tmp/waymo/processed_scenarios_validation'
+        'train': 'processed_scenarios_training',
+        'test': 'processed_scenarios_validation'
     }
 
     INFO_FILE: {
-        'train': '/tmp/waymo/processed_scenarios_training_infos.pkl',
-        'test': '/tmp/waymo/processed_scenarios_val_infos.pkl'
+        'train': 'processed_scenarios_training_infos.pkl',
+        'test': 'processed_scenarios_val_infos.pkl'
     }
 
     SAMPLE_INTERVAL: {
